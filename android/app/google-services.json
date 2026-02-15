@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "583557751613",
+    "project_id": "libre-4c3a0",
+    "storage_bucket": "libre-4c3a0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:583557751613:android:fbd7a1db95d781fcdd5b54",
+        "android_client_info": {
+          "package_name": "com.example.yorozuya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADjjUCuYcsEUje-ZkQTz1rCZAzw2vwnoI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
