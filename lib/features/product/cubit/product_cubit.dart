@@ -12,9 +12,11 @@ class ProductCubit extends Cubit<ProductState> {
     emit(ProductLoading());
 
     try {
-      final response = await _dio.get('https://fakestoreapi.com/products');
+      final response = await _dio.get('https://dummyjson.com/products');
 
-      final products = (response.data as List)
+      final List productsJson = response.data['products'];
+
+      final products = productsJson
           .map((e) => ProductModel.fromJson(e))
           .toList();
 
