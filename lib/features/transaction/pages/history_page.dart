@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart'; // Import intl untuk tanggal
+import 'package:intl/intl.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 import 'package:yorozuya/core/utils/color.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
-
-  // Helper _formatCurrency DIHAPUS
 
   // Helper untuk format tanggal
   String _formatDate(Timestamp timestamp) {
@@ -101,7 +99,6 @@ class HistoryPage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      // HAPUS Border.all
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withOpacity(0.05),
@@ -132,7 +129,6 @@ class HistoryPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // RAW DATA HARGA
                                 Text(
                                   "Rp $totalPrice",
                                   style: const TextStyle(
