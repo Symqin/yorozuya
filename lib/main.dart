@@ -7,7 +7,11 @@ import 'features/auth/pages/register_page.dart';
 import 'firebase_options.dart';
 import 'features/home/home_page.dart';
 import 'features/product/cubit/product_cubit.dart';
+import 'features/cart/cubit/cart_cubit.dart';
+import 'features/cart/pages/cart_page.dart';
 import 'features/product/pages/product_list_page.dart';
+import 'features/transaction/cubit/transaction_cubit.dart';
+import 'features/transaction/pages/history_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +22,8 @@ void main() async {
       providers: [
         BlocProvider(create: (_) => AuthCubit()),
         BlocProvider(create: (_) => ProductCubit()), // DAY 3
-        // CartCubit nanti DAY 4
+        BlocProvider(create: (_) => CartCubit()),
+        BlocProvider(create: (_) => TransactionCubit()),
       ],
       child: const MyApp(),
     ),
@@ -37,7 +42,9 @@ class MyApp extends StatelessWidget {
         '/login': (_) => LoginPage(),
         '/register': (_) => RegisterPage(),
         '/home': (_) => const HomePage(),
-        '/products': (_) => const ProductListPage(), // ⬅️ TAMBAH INI
+        '/products': (_) => const ProductListPage(),
+        '/cart': (_) => const CartPage(),
+        '/history': (_) => const HistoryPage(),
       },
     );
   }
