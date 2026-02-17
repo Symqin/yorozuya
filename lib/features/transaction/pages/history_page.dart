@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../auth/cubit/auth_cubit.dart';
 import '../../auth/cubit/auth_state.dart';
 import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/empty_state.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -56,31 +57,10 @@ class HistoryPage extends StatelessWidget {
               final docs = snap.data?.docs ?? [];
 
               if (docs.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.receipt_long_rounded,
-                        size: 80,
-                        color: Colors.grey, // Pakai warna grey biasa
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Belum ada transaksi",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: AppColors.textDark,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Yuk, mulai belanja di Yorozuya!",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
+                return const EmptyStateWidget(
+                  icon: Icons.receipt_long_rounded,
+                  title: "Belum ada transaksi",
+                  subtitle: "Yuk, mulai belanja di Yorozuya!",
                 );
               }
 

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'auth_state.dart';
 
@@ -9,6 +10,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // 🔥 METHOD BARU: Wajib ada untuk Auto-Login
   // Dipanggil dari main.dart menggunakan (..checkAuthStatus())
@@ -35,7 +37,14 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
       );
-      emit(AuthSuccess(userCredential.user!));
+      final user = userCredential.user!;
+      // Simpan nama awal dari email ke Firestore
+      final initialName = email.split('@')[0];
+      await _firestore.collection('users').doc(user.uid).set({
+        'displayName': initialName,
+        'email': email,
+      }, SetOptions(merge: true));
+      emit(AuthSuccess(user));
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message ?? "An unknown error occurred"));
     }
@@ -83,12 +92,34 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Update display name ke Firestore + Firebase Auth
+  Future<void> updateDisplayName(String newName) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return;
+
+      // Update di Firebase Auth
+      await user.updateDisplayName(newName);
+
+      // Update di Firestore
+      await _firestore.collection('users').doc(user.uid).set({
+        'displayName': newName,
+      }, SetOptions(merge: true));
+
+      // Re-emit AuthSuccess supaya UI refresh
+      await user.reload();
+      emit(AuthSuccess(_auth.currentUser!));
+    } catch (e) {
+      emit(AuthError("Gagal update nama: ${e.toString()}"));
+    }
+  }
+
   Future<void> logout() async {
-    emit(AuthLoading()); // Biar kerasa proses logoutnya
+    emit(AuthLoading());
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
-      emit(AuthInitial()); // Kembali ke login page
+      emit(AuthInitial());
     } catch (e) {
       emit(AuthError("Gagal logout: ${e.toString()}"));
     }

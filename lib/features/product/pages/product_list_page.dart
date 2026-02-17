@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/empty_state.dart';
+import 'package:yorozuya/core/utils/product_card.dart';
 import '../cubit/product_cubit.dart';
 import '../cubit/product_state.dart';
 import '../models/product_model.dart';
-import 'product_detail_page.dart'; // Pastikan import ini sesuai path Anda
 
 class ProductListPage extends StatefulWidget {
   const ProductListPage({super.key});
@@ -13,6 +16,9 @@ class ProductListPage extends StatefulWidget {
 }
 
 class _ProductListPageState extends State<ProductListPage> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
+
   @override
   void initState() {
     super.initState();
@@ -20,155 +26,146 @@ class _ProductListPageState extends State<ProductListPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Produk"), centerTitle: true),
-      body: BlocBuilder<ProductCubit, ProductState>(
-        builder: (context, state) {
-          // Loading
-          if (state is ProductLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          //  Error
-          if (state is ProductError) {
-            return Center(child: Text(state.message));
-          }
-
-          // ✅ Data berhasil
-          if (state is ProductLoaded) {
-            if (state.products.isEmpty) {
-              return const Center(child: Text("Produk kosong"));
-            }
-
-            return GridView.builder(
-              padding: const EdgeInsets.all(12),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Jumlah kolom
-                mainAxisSpacing: 12, // Jarak vertikal antar item
-                crossAxisSpacing: 12, // Jarak horizontal antar item
-                childAspectRatio:
-                    0.7, // Rasio tinggi:lebar kartu (semakin kecil semakin tinggi)
-              ),
-              itemCount: state.products.length,
-              itemBuilder: (context, index) {
-                final ProductModel product = state.products[index];
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProductDetailPage(product: product),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // GAMBAR (Atas)
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12),
-                            ),
-                            child: Image.network(
-                              product.thumbnail,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        // INFO (Bawah)
-                        Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Judul Produk
-                              Text(
-                                product.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-
-                              // Harga
-                              Text(
-                                "Rp ${product.price}",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-
-                              // Rating & Stok
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.star,
-                                    size: 14,
-                                    color: Colors.amber,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    product.rating.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Text(
-                                    "Stok: ${product.stock}",
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text(
+          "Semua Produk",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        foregroundColor: AppColors.textDark,
+      ),
+      body: Column(
+        children: [
+          // ── SEARCH BAR ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
-                );
-              },
-            );
-          }
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
+                decoration: InputDecoration(
+                  hintText: "Cari produk...",
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.primary,
+                  ),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() => _searchQuery = "");
+                          },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
 
-          return const SizedBox();
-        },
+          // ── PRODUCT GRID ──
+          Expanded(
+            child: BlocBuilder<ProductCubit, ProductState>(
+              builder: (context, state) {
+                if (state is ProductLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  );
+                }
+
+                if (state is ProductError) {
+                  return EmptyStateWidget(
+                    icon: Icons.error_outline,
+                    title: "Gagal memuat produk",
+                    subtitle: state.message,
+                    actionLabel: "Coba Lagi",
+                    onAction: () =>
+                        context.read<ProductCubit>().fetchProducts(),
+                  );
+                }
+
+                if (state is ProductLoaded) {
+                  // Filter berdasarkan search
+                  final filtered = state.products.where((p) {
+                    final query = _searchQuery.toLowerCase();
+                    return p.title.toLowerCase().contains(query);
+                  }).toList();
+
+                  if (filtered.isEmpty) {
+                    return EmptyStateWidget(
+                      icon: _searchQuery.isNotEmpty
+                          ? Icons.search_off
+                          : Icons.inventory_2_outlined,
+                      title: _searchQuery.isNotEmpty
+                          ? "Produk tidak ditemukan"
+                          : "Belum ada produk",
+                      subtitle: _searchQuery.isNotEmpty
+                          ? "Coba kata kunci lain"
+                          : null,
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () async =>
+                        context.read<ProductCubit>().fetchProducts(),
+                    color: AppColors.primary,
+                    child: GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 0.7,
+                          ),
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final ProductModel product = filtered[index];
+                        return ProductCard(
+                          product: product,
+                          onTap: () => context.push(
+                            '/products/${product.id}',
+                            extra: product,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                return const SizedBox();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/primary_button.dart';
 import 'package:yorozuya/features/product/models/product_model.dart';
 import 'package:yorozuya/features/auth/cubit/auth_cubit.dart';
 import 'package:yorozuya/features/auth/cubit/auth_state.dart';
@@ -195,7 +197,7 @@ class ProductDetailPage extends StatelessWidget {
                   color: AppColors.textDark,
                   size: 20,
                 ),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.pop(),
               ),
             ),
           ),
@@ -221,14 +223,9 @@ class ProductDetailPage extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity, // Full width
                 height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                child: PrimaryButton(
+                  label: "Tambah ke Keranjang",
+                  icon: Icons.shopping_cart_outlined,
                   onPressed: () async {
                     final authState = context.read<AuthCubit>().state;
 
@@ -262,7 +259,7 @@ class ProductDetailPage extends StatelessWidget {
                     );
 
                     if (context.mounted) {
-                      Navigator.pop(context);
+                      Navigator.pop(context); // Tutup dialog loading
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           backgroundColor: AppColors.primary,
@@ -272,14 +269,6 @@ class ProductDetailPage extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text(
-                    "Tambah ke Keranjang",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
             ),

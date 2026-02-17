@@ -5,12 +5,14 @@ class CategoryItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool isSelected;
 
   const CategoryItem({
     super.key,
     required this.icon,
     required this.label,
     required this.onTap,
+    this.isSelected = false,
   });
 
   @override
@@ -19,30 +21,40 @@ class CategoryItem extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             height: 60,
             width: 60,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isSelected ? AppColors.primary : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.secondary.withOpacity(0.4)),
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.secondary.withOpacity(0.4),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.05),
+                  color: isSelected
+                      ? AppColors.primary.withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Icon(icon, color: AppColors.primary),
+            child: Icon(
+              icon,
+              color: isSelected ? Colors.white : AppColors.primary,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textDark,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? AppColors.primary : AppColors.textDark,
             ),
           ),
         ],

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yorozuya/features/auth/cubit/auth_cubit.dart';
 import 'package:yorozuya/features/auth/cubit/auth_state.dart';
 import 'package:yorozuya/core/utils/customtexfield.dart';
-import 'package:yorozuya/core/utils/color.dart'; // Pastikan import ini benar
+import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/primary_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,7 +33,8 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
-            Navigator.pushReplacementNamed(context, '/home');
+            // GoRouter redirect otomatis menangani navigasi ke home
+            context.go('/');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(
               context,
@@ -69,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
                         CustomTextFormField(
                           label: 'Email',
                           controller: _emailController,
-                          // Validator sederhana (opsional)
                           validator: (value) => value!.isEmpty
                               ? "Email tidak boleh kosong"
                               : null,
@@ -86,57 +88,32 @@ class _LoginPageState extends State<LoginPage> {
 
                         BlocBuilder<AuthCubit, AuthState>(
                           builder: (context, state) {
-                            if (state is AuthLoading) {
-                              return const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              );
-                            }
-                            return SizedBox(
-                              height: 52,
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  backgroundColor:
-                                      AppColors.primary, // Tombol Hijau
-                                  elevation: 2,
-                                ),
-                                onPressed: () {
-                                  if (_emailController.text.isEmpty ||
-                                      _passwordController.text.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        backgroundColor: AppColors
-                                            .primary, // SnackBar warna Oranye
-                                        content: Text(
-                                          "Email & password wajib diisi",
-                                        ),
+                            return PrimaryButton(
+                              label: "Login",
+                              isLoading: state is AuthLoading,
+                              onPressed: () {
+                                if (_emailController.text.isEmpty ||
+                                    _passwordController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: AppColors.primary,
+                                      content: Text(
+                                        "Email & password wajib diisi",
                                       ),
-                                    );
-                                    return;
-                                  }
-                                  context.read<AuthCubit>().login(
-                                    _emailController.text,
-                                    _passwordController.text,
+                                    ),
                                   );
-                                },
-                                child: const Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                                  return;
+                                }
+                                context.read<AuthCubit>().login(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                );
+                              },
                             );
                           },
                         ),
                         const SizedBox(height: 30),
 
-                        // UBAH: Divider menggunakan warna Secondary (Kayu Muda)
                         const Row(
                           children: [
                             Expanded(
@@ -165,35 +142,31 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         const SizedBox(height: 30),
 
-                        // UBAH: Tombol Google jadi clean (Border Kayu, Teks Hitam)
                         ElevatedButton(
                           onPressed: () =>
                               context.read<AuthCubit>().signInWithGoogle(),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor:
-                                AppColors.textDark, // Efek splash saat diklik
+                            foregroundColor: AppColors.textDark,
                             elevation: 0,
                             fixedSize: const Size(double.infinity, 52),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: const BorderSide(
                                 color: AppColors.secondary,
-                              ), // Border warna kayu
+                              ),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Sebaiknya pakai Image.asset('assets/google_logo.png') jika ada
-                              // Tapi pakai Icon sementara tidak apa-apa
-                              const Icon(
+                              Icon(
                                 Icons.g_mobiledata,
                                 size: 30,
                                 color: AppColors.textDark,
                               ),
-                              const SizedBox(width: 8),
-                              const Text(
+                              SizedBox(width: 8),
+                              Text(
                                 "Google",
                                 style: TextStyle(
                                   color: AppColors.textDark,
@@ -213,13 +186,11 @@ class _LoginPageState extends State<LoginPage> {
                               style: TextStyle(color: AppColors.textDark),
                             ),
                             GestureDetector(
-                              onTap: () =>
-                                  Navigator.pushNamed(context, '/register'),
+                              onTap: () => context.push('/register'),
                               child: const Text(
                                 "Register",
                                 style: TextStyle(
-                                  color: AppColors
-                                      .accent, // Warna Oranye agar menarik perhatian
+                                  color: AppColors.accent,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

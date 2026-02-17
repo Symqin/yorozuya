@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yorozuya/features/auth/cubit/auth_cubit.dart';
 import 'package:yorozuya/features/auth/cubit/auth_state.dart';
 import 'package:yorozuya/core/utils/customtexfield.dart';
-import 'package:yorozuya/core/utils/color.dart'; // Pastikan import ini ada
+import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/primary_button.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,20 +21,18 @@ class _RegisterPageState extends State<RegisterPage> {
       TextEditingController();
 
   void _handleRegister() {
-    // Validasi input kosong
     if (_emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          backgroundColor: Colors.red, // Tetap merah untuk error
+          backgroundColor: Colors.red,
           content: Text("Semua kolom harus diisi"),
         ),
       );
       return;
     }
 
-    // Validasi password tidak sama
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -60,17 +60,17 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, // Background Krem Hangat
+      backgroundColor: AppColors.background,
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                backgroundColor: AppColors.primary, // Hijau saat sukses
+                backgroundColor: AppColors.primary,
                 content: Text("Registrasi Berhasil! Silahkan Login."),
               ),
             );
-            Navigator.pop(context);
+            context.pop();
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -86,9 +86,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Padding(
-                  padding: const EdgeInsets.all(
-                    24.0,
-                  ), // Padding konsisten dengan Login
+                  padding: const EdgeInsets.all(24.0),
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -102,7 +100,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        // UBAH: Icon tambah orang dengan warna Primary
                         Image.asset('assets/icon/yoro.png', height: 100),
 
                         const SizedBox(height: 30),
@@ -126,35 +123,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         BlocBuilder<AuthCubit, AuthState>(
                           builder: (context, state) {
-                            if (state is AuthLoading) {
-                              return const CircularProgressIndicator(
-                                color: AppColors.primary,
-                              );
-                            }
-                            return SizedBox(
-                              height: 52,
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    // Radius disamakan dengan Login Page (12)
-                                    // Kalau mau bulat pil seperti kode awalmu, ganti jadi 30
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  backgroundColor:
-                                      AppColors.primary, // Hijau Sage
-                                  elevation: 2,
-                                ),
-                                onPressed: _handleRegister,
-                                child: const Text(
-                                  "Daftar Sekarang",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            return PrimaryButton(
+                              label: "Daftar Sekarang",
+                              isLoading: state is AuthLoading,
+                              onPressed: _handleRegister,
                             );
                           },
                         ),
@@ -167,11 +139,11 @@ class _RegisterPageState extends State<RegisterPage> {
                               style: TextStyle(color: AppColors.textDark),
                             ),
                             GestureDetector(
-                              onTap: () => Navigator.pop(context),
+                              onTap: () => context.pop(),
                               child: const Text(
                                 "Masuk",
                                 style: TextStyle(
-                                  color: AppColors.accent, // Oranye Persimmon
+                                  color: AppColors.accent,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

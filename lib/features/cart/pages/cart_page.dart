@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:yorozuya/features/cart/cubit/cart_cubit.dart';
 import 'package:yorozuya/features/cart/cubit/cart_state.dart';
@@ -7,6 +8,8 @@ import 'package:yorozuya/features/auth/cubit/auth_cubit.dart';
 import 'package:yorozuya/features/auth/cubit/auth_state.dart';
 import 'package:yorozuya/features/transaction/cubit/transaction_cubit.dart';
 import 'package:yorozuya/core/utils/color.dart';
+import 'package:yorozuya/core/utils/empty_state.dart';
+import 'package:yorozuya/core/utils/primary_button.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -25,8 +28,6 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  // METHOD FORMATTER SUDAH DIHAPUS
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,29 +45,11 @@ class _CartPageState extends State<CartPage> {
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
           if (state.items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.shopping_cart_outlined,
-                    size: 80,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Keranjang kosong",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      "Belanja Dulu",
-                      style: TextStyle(color: AppColors.primary),
-                    ),
-                  ),
-                ],
-              ),
+            return EmptyStateWidget(
+              icon: Icons.shopping_cart_outlined,
+              title: "Keranjang kosong",
+              actionLabel: "Belanja Dulu",
+              onAction: () => context.pop(),
             );
           }
 
@@ -135,7 +118,6 @@ class _CartPageState extends State<CartPage> {
                                 ),
                                 const SizedBox(height: 4),
 
-                                // RAW DATA DARI API
                                 Text(
                                   "Rp ${item.price}",
                                   style: const TextStyle(
@@ -227,7 +209,6 @@ class _CartPageState extends State<CartPage> {
                                 fontSize: 12,
                               ),
                             ),
-                            // RAW DATA TOTAL PRICE
                             Text(
                               "Rp ${state.totalPrice}",
                               style: const TextStyle(
@@ -238,28 +219,11 @@ class _CartPageState extends State<CartPage> {
                           ],
                         ),
                       ),
-                      SizedBox(
+                      PrimaryButton(
+                        label: "Checkout",
                         width: 160,
                         height: 50,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            _processCheckout(context);
-                          },
-                          child: const Text(
-                            "Checkout",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
+                        onPressed: () => _processCheckout(context),
                       ),
                     ],
                   ),
@@ -292,8 +256,8 @@ class _CartPageState extends State<CartPage> {
       await context.read<CartCubit>().clearCart(authState.user.uid);
 
       if (mounted) {
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, '/history');
+        Navigator.pop(context); // Tutup dialog loading
+        context.go('/'); // Kembali ke halaman utama (tab Transaksi)
       }
     } catch (e) {
       if (mounted) Navigator.pop(context);
