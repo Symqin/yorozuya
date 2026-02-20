@@ -33,8 +33,10 @@ final GoRouter appRouter = GoRouter(
       return '/login';
     }
 
-    // Sudah login & masih di halaman login → arahkan ke home
-    if (isLoggedIn && state.matchedLocation == '/login') {
+    // Sudah login & masih di halaman login/splash → arahkan ke home
+    if (isLoggedIn &&
+        (state.matchedLocation == '/login' ||
+            state.matchedLocation == '/splash')) {
       return '/';
     }
 
