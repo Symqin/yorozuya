@@ -65,25 +65,27 @@ class CartCubit extends Cubit<CartState> {
     emit(CartState(items));
   }
 
+  /// Update item quantity
+  Future<void> updateQuantity(String userId, int productId, int newQty) async {
+    if (newQty <= 0) {
+      return removeFromCart(userId, productId);
+    }
+
+    final items = state.items.map((e) {
+      if (e.productId == productId) {
+        return e.copyWith(quantity: newQty);
+      }
+      return e;
+    }).toList();
+
+    await _syncCart(userId, items);
+    emit(CartState(items));
+  }
+
   /// Remove item
   Future<void> removeFromCart(String userId, int productId) async {
     final items = state.items.where((e) => e.productId != productId).toList();
-
-    await _firestore.collection('carts').doc(userId).set({
-      'updatedAt': FieldValue.serverTimestamp(),
-      'items': items
-          .map(
-            (e) => {
-              'productId': e.productId,
-              'title': e.title,
-              'price': e.price,
-              'quantity': e.quantity,
-              'thumbnail': e.thumbnail,
-            },
-          )
-          .toList(),
-    });
-
+    await _syncCart(userId, items);
     emit(CartState(items));
   }
 
@@ -91,5 +93,27 @@ class CartCubit extends Cubit<CartState> {
   Future<void> clearCart(String userId) async {
     await _firestore.collection('carts').doc(userId).delete();
     emit(const CartState([]));
+  }
+
+  /// Helper: sync cart items to Firestore
+  Future<void> _syncCart(String userId, List<CartItem> items) async {
+    if (items.isEmpty) {
+      await _firestore.collection('carts').doc(userId).delete();
+    } else {
+      await _firestore.collection('carts').doc(userId).set({
+        'updatedAt': FieldValue.serverTimestamp(),
+        'items': items
+            .map(
+              (e) => {
+                'productId': e.productId,
+                'title': e.title,
+                'price': e.price,
+                'quantity': e.quantity,
+                'thumbnail': e.thumbnail,
+              },
+            )
+            .toList(),
+      });
+    }
   }
 }

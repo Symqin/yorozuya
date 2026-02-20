@@ -63,6 +63,7 @@ lib/
 │   │   │   ├── auth_cubit.dart        # Login, register, Google sign-in, logout, updateDisplayName
 │   │   │   └── auth_state.dart        # AuthInitial, AuthLoading, AuthSuccess, AuthError
 │   │   └── pages/
+│   │       ├── splash_page.dart       # Splash screen (logo + animasi, auto-navigate)
 │   │       ├── login_page.dart        # Halaman login (email/password + Google)
 │   │       └── register_page.dart     # Halaman registrasi
 │   │
@@ -182,6 +183,7 @@ Navigasi terpusat di `lib/core/routes/app_router.dart`:
 
 | Route | Halaman | Akses |
 |---|---|---|
+| `/splash` | `SplashPage` (initial) | Public |
 | `/` | `MainPage` (Home + History + Profile) | Harus login |
 | `/login` | `LoginPage` | Public |
 | `/register` | `RegisterPage` | Public |
@@ -192,8 +194,8 @@ Navigasi terpusat di `lib/core/routes/app_router.dart`:
 ### Auth Redirect Logic:
 
 ```
-Belum login + bukan /login atau /register  →  redirect ke /login
-Sudah login + akses /login                 →  redirect ke /
+Belum login + bukan /login, /register, /splash  →  redirect ke /login
+Sudah login + akses /login                      →  redirect ke /
 ```
 
 ### Navigasi di kode:
@@ -207,6 +209,11 @@ context.pop();                 // Kembali
 ---
 
 ## ✨ Fitur Aplikasi
+
+### 🎬 Splash Screen
+- Logo app + teks **"Yorozuya"** + tagline
+- Animasi **fade-in + scale** (1.5 detik)
+- Auto-navigasi setelah **3 detik** → login (belum login) / home (sudah login)
 
 ### 🔐 Autentikasi
 - Login via **email/password**

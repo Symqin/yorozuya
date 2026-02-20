@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Pages
 import 'package:yorozuya/features/auth/pages/login_page.dart';
+import 'package:yorozuya/features/auth/pages/splash_page.dart';
 import 'package:yorozuya/features/auth/pages/register_page.dart';
 import 'package:yorozuya/features/navigation/pages/main_page.dart';
 import 'package:yorozuya/features/product/pages/product_list_page.dart';
@@ -16,7 +17,7 @@ import 'package:yorozuya/features/cart/pages/cart_page.dart';
 /// Auth redirect: jika belum login → ke /login,
 /// jika sudah login tapi buka /login atau /register → ke /
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   debugLogDiagnostics: true,
 
   // Redirect logic untuk auth
@@ -24,7 +25,8 @@ final GoRouter appRouter = GoRouter(
     final isLoggedIn = FirebaseAuth.instance.currentUser != null;
     final isAuthRoute =
         state.matchedLocation == '/login' ||
-        state.matchedLocation == '/register';
+        state.matchedLocation == '/register' ||
+        state.matchedLocation == '/splash';
 
     // Belum login & bukan di halaman auth → paksa ke login
     if (!isLoggedIn && !isAuthRoute) {
@@ -41,6 +43,7 @@ final GoRouter appRouter = GoRouter(
 
   routes: [
     // ── Auth ──
+    GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
     GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
     GoRoute(
       path: '/register',

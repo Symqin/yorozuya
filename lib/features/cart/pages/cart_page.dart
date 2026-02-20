@@ -119,7 +119,7 @@ class _CartPageState extends State<CartPage> {
                                 const SizedBox(height: 4),
 
                                 Text(
-                                  "Rp ${item.price}",
+                                  "Rp ${item.price.toStringAsFixed(2)}",
                                   style: const TextStyle(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
@@ -133,7 +133,18 @@ class _CartPageState extends State<CartPage> {
                                     _QtyButton(
                                       icon: Icons.remove,
                                       onTap: () {
-                                        // TODO: Logic kurang qty
+                                        final user = context
+                                            .read<AuthCubit>()
+                                            .state;
+                                        if (user is AuthSuccess) {
+                                          context
+                                              .read<CartCubit>()
+                                              .updateQuantity(
+                                                user.user.uid,
+                                                item.productId,
+                                                item.quantity - 1,
+                                              );
+                                        }
                                       },
                                     ),
                                     Padding(
@@ -150,7 +161,18 @@ class _CartPageState extends State<CartPage> {
                                     _QtyButton(
                                       icon: Icons.add,
                                       onTap: () {
-                                        // TODO: Logic tambah qty
+                                        final user = context
+                                            .read<AuthCubit>()
+                                            .state;
+                                        if (user is AuthSuccess) {
+                                          context
+                                              .read<CartCubit>()
+                                              .updateQuantity(
+                                                user.user.uid,
+                                                item.productId,
+                                                item.quantity + 1,
+                                              );
+                                        }
                                       },
                                     ),
                                     const Spacer(),
@@ -210,7 +232,7 @@ class _CartPageState extends State<CartPage> {
                               ),
                             ),
                             Text(
-                              "Rp ${state.totalPrice}",
+                              "Rp ${state.totalPrice.toStringAsFixed(2)}",
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
