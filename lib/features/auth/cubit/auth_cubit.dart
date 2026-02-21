@@ -44,6 +44,8 @@ class AuthCubit extends Cubit<AuthState> {
         'displayName': initialName,
         'email': email,
       }, SetOptions(merge: true));
+      // Sign out setelah register agar user diarahkan ke login, bukan home
+      await _auth.signOut();
       emit(AuthSuccess(user));
     } on FirebaseAuthException catch (e) {
       emit(AuthError(e.message ?? "An unknown error occurred"));

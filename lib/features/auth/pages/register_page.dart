@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 content: Text("Registrasi Berhasil! Silahkan Login."),
               ),
             );
-            context.pop();
+            context.go('/login');
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
